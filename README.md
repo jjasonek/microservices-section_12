@@ -115,3 +115,39 @@ Invoke-RestMethod -Method Post `
 statusCode statusMsg
 ---------- ---------
 201        Account created successfully
+
+
+## Docker compose
+
+### for all microservices we call following to generate docker images s11:
+mvn compile jib:dockerBuild
+
+docker image ls --filter=reference="jjasonek/*:s12"
+
+Alternatively you can use (on Linux):
+docker images | grep s12
+
+### push images to docker hub:
+docker image push docker.io/jjasonek/accounts:s12
+docker image push docker.io/jjasonek/loans:s12
+docker image push docker.io/jjasonek/cards:s12
+docker image push docker.io/jjasonek/configserver:s12
+docker image push docker.io/jjasonek/eurekaserver:s12
+docker image push docker.io/jjasonek/gatewayserver:s12
+
+### Run docker compose:
+docker-compose up -d
+
+### Now it is not possible to call individual microservices by their URLs:
+GET http://localhost:9000/api/build-info
+
+### calling non secured APIs should be OK:
+GET http://localhost:8072/eazybank/accounts/api/contact-info
+
+### Keycloak is available at:
+http://localhost:7080
+
+### Re-register clients and user in Keycloak:
+eazybank-callcenter-cc
+eazybank-callcenter-ac
+rambousek

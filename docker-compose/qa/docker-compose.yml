@@ -1,5 +1,18 @@
 services:
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.0
+    container_name: keycloak
+    ports:
+      - "7080:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
+    command: start-dev
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   read:
     image: grafana/loki:3.5
     command: "-config.file=/etc/loki/config.yaml -target=read"
@@ -266,8 +279,6 @@ services:
   accounts:
     image: "jjasonek/accounts:s12"
     container_name: accounts-ms
-    ports:
-      - "8080:8080"
     environment:
       SPRING_APPLICATION_NAME: "accounts"   # This is here because of bug in Spring Cloud Config Server version.
       OTEL_SERVICE_NAME: "accounts"
@@ -284,8 +295,6 @@ services:
   loans:
     image: "jjasonek/loans:s12"
     container_name: loans-ms
-    ports:
-      - "8090:8090"
     environment:
       SPRING_APPLICATION_NAME: "loans"   # This is here because of bug in Spring Cloud Config Server version.
       OTEL_SERVICE_NAME: "loans"
@@ -302,8 +311,6 @@ services:
   cards:
     image: "jjasonek/cards:s12"
     container_name: cards-ms
-    ports:
-      - "9000:9000"
     environment:
       SPRING_APPLICATION_NAME: "cards"   # This is here because of bug in Spring Cloud Config Server version.
       OTEL_SERVICE_NAME: "cards"
@@ -338,6 +345,7 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_TIMEOUT: 1s
       OTEL_SERVICE_NAME: "gatewayserver"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
